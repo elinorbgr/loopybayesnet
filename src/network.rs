@@ -1,6 +1,7 @@
 use crate::LogProbVector;
 use ndarray::{Array, ArrayD, Axis, Dimension, RemoveAxis};
 
+#[derive(Debug)]
 struct Node {
     parents: Vec<(usize, LogProbVector)>,
     children: Vec<(usize, LogProbVector)>,
@@ -130,9 +131,10 @@ impl BayesNet {
 
         // the shapes match, proceed to insert the node
         for &p in parents {
+            let size = self.nodes[p].log_probas.shape()[0];
             self.nodes[p]
                 .children
-                .push((id, LogProbVector::uniform(shape[0])));
+                .push((id, LogProbVector::uniform(size)));
         }
 
         crate::math::normalize_log_probas(log_probabilities.view_mut());
@@ -213,6 +215,7 @@ impl BayesNet {
         // Compute the new messages and store them into thes two big vectors, once this done we will replace
         // them into the graph.
         // Their layout is (from, to, content). We pre-allocate the correct capacity.
+
         let mut pi_msgs: Vec<(usize, usize, LogProbVector)> =
             Vec::with_capacity(self.nodes.iter().map(|n| n.children.len()).sum());
         let mut lambda_msgs: Vec<(usize, usize, LogProbVector)> =
