@@ -2,6 +2,8 @@
 name = "loopybayesnet"
 version = "0.1.0"
 authors = ["Victor Berger <victor.berger@inria.fr>"]
+documentation = "https://docs.rs/loopybayesnet/"
+repository = "https://github.com/vberger/loopybayesnet"
 edition = "2018"
 license = "MIT"
 description = "Implementation of the Loopy Belief Propagation for Bayesian Networks"
