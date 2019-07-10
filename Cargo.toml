@@ -3,8 +3,8 @@ name = "loopybayesnet"
 version = "0.1.0"
 authors = ["Victor Berger <victor.berger@inria.fr>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT"
+description = "Implementation of the Loopy Belief Propagation for Bayesian Networks"
 
 [dependencies]
 ndarray = "0.12"
