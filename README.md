@@ -10,21 +10,21 @@ with a probability table defining the probability of it taking each possible val
 on the values of its parents. For further details, you can check
 [Wikipedia](https://en.wikipedia.org/wiki/Bayesian_network).
 
-The Loopy Belief Propagation is an algorithm computes an approximation of the marginal probability
-distribution of each node of the network, conditionned to the value of a chosen set of "observed"
-variables, for which the values are set beforethand.
+The Loopy Belief Propagation is an algorithm that computes an approximation of the marginal probability
+distribution of each node of the network, conditionned by the value of a chosen set of "observed"
+variables, for which the values are set beforehand.
 
 This is an approximation, which behaves as if the parents of each node were conditionnaly
 independent given the node. This is only true if the considered graph is actually a tree (there
 are no undirected loop), in which case the approximation is exact.
 
 A typical failure case of this algorithm is when some nodes have parents that are both strongly
-correlated and very random (which is notably the case for the `simple_net` example ;) ). Then,
-even if the algorithm converges (it is not always the case), it is likely to converge to a wrong
+correlated and very random (which is notably the case for the `simple_net` example in this repository ;) ).
+Then, even if the algorithm converges (it is not always the case), it is likely to converge to a wrong
 value.
 
 On the other hand, for networks where the observations almost certainly determine the value of the
-rest of the network (which is often the case in real-world problems), the Loopy Belief Propagation
+rest of the network (which is not rare in real-world problems), the Loopy Belief Propagation
 algorithm provides a very good approximation (see [arXiv:1301.6725](https://arxiv.org/pdf/1301.6725.pdf)
 for a study about it for example).
 
