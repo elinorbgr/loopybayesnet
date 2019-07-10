@@ -18,18 +18,14 @@ fn main() {
 
     // Rain has no parents, it is a prior
     // We have P(not Rain) = 0.8, P(Rain) = 0.8
-    let rain = net.add_node(
-        &[],
-        ndarray::Array1::from(vec![0.8, 0.2]).mapv(f32::ln)
-    );
+    let rain = net.add_node_from_probabilities(&[], ndarray::Array1::from(vec![0.8, 0.2]));
 
     // Sprinkler has a parent (Rain)
     // We have P(not Sprinkler | not Rain) = 0.60, P(not Sprinkler | Rain) = 0.99
     //         P(    Sprinkler | not Rain) = 0.40, P(    Sprinkler | Rain) = 0.01
-    let sprinkler = net.add_node(
+    let sprinkler = net.add_node_from_probabilities(
         &[rain],
-        ndarray::Array2::from(vec![[0.60, 0.99],
-                                  [0.40, 0.01]]).mapv(f32::ln)
+        ndarray::Array2::from(vec![[0.60, 0.99], [0.40, 0.01]]),
     );
 
     // Wet has 2 parents (Rain and Sprinkler)
@@ -37,10 +33,9 @@ fn main() {
     //         P(not Wet | Rain,     not Sprinkler) = 0.2, P(not Wet | Rain,     Sprinkler) = 0.01
     //         P(    Wet | not Rain, not Sprinkler) = 0.0, P(    Wet | not Rain, Sprinkler) = 0.9
     //         P(    Wet | Rain,     not Sprinkler) = 0.8, P(    Wet | Rain,     Sprinkler) = 0.99
-    let wet = net.add_node(
+    let wet = net.add_node_from_probabilities(
         &[rain, sprinkler],
-        ndarray::Array3::from(vec![[[1.0, 0.1], [0.2, 0.01]],
-                                   [[0.0, 0.9], [0.8, 0.99]]]).mapv(f32::ln)
+        ndarray::Array3::from(vec![[[1.0, 0.1], [0.2, 0.01]], [[0.0, 0.9], [0.8, 0.99]]]),
     );
 
     // We can now do some inferences
@@ -53,9 +48,18 @@ fn main() {
         net.step();
     }
     let beliefs = net.beliefs();
-    println!("    Rain: {}", beliefs[rain].as_proba());
-    println!("    Sprinkler: {}", beliefs[sprinkler].as_proba());
-    println!("    Wet: {}", beliefs[wet].as_proba());
+    println!(
+        "    P(Rain)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
 
     println!();
     println!("===== marginal probabilities assuming the grass is wet =====");
@@ -67,9 +71,18 @@ fn main() {
         net.step();
     }
     let beliefs = net.beliefs();
-    println!("    Rain: {}", beliefs[rain].as_proba());
-    println!("    Sprinkler: {}", beliefs[sprinkler].as_proba());
-    println!("    Wet: {}", beliefs[wet].as_proba());
+    println!(
+        "    P(Rain | Wet)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler | Wet) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet | Wet)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
 
     println!();
     println!("===== marginal probabilities assuming the sprinkler is running =====");
@@ -81,21 +94,39 @@ fn main() {
         net.step();
     }
     let beliefs = net.beliefs();
-    println!("    Rain: {}", beliefs[rain].as_proba());
-    println!("    Sprinkler: {}", beliefs[sprinkler].as_proba());
-    println!("    Wet: {}", beliefs[wet].as_proba());
+    println!(
+        "    P(Rain | Sprinkler)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler | Sprinkler) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet | Sprinkler)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
 
     println!();
-    println!("===== marginal probabilities assuming it rains =====");
+    println!("===== marginal probabilities assuming it's not rainning =====");
     // Evidence can even be at the prior !
     net.reset_state();
-    net.set_evidence(&[(rain, 1)]);
+    net.set_evidence(&[(rain, 0)]);
     for _ in 1..10 {
         // this one is quick to converge too
         net.step();
     }
     let beliefs = net.beliefs();
-    println!("    Rain: {}", beliefs[rain].as_proba());
-    println!("    Sprinkler: {}", beliefs[sprinkler].as_proba());
-    println!("    Wet: {}", beliefs[wet].as_proba());
+    println!(
+        "    P(Rain | not Rain)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler | not Rain) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet | not Rain)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
 }

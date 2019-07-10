@@ -1,5 +1,5 @@
 use crate::LogProbVector;
-use ndarray::{ArrayD, Axis, Array, Dimension, RemoveAxis};
+use ndarray::{Array, ArrayD, Axis, Dimension, RemoveAxis};
 
 struct Node {
     parents: Vec<(usize, LogProbVector)>,
@@ -43,11 +43,15 @@ impl Node {
     fn compute_pi(&self) -> LogProbVector {
         let mut pi = self.log_probas.clone();
         for (_, ref pi_msg) in self.parents.iter().rev() {
-            pi = crate::math::log_contract(pi.view(), pi_msg.log_probas(), Axis(pi.ndim() - 1));
+            pi = crate::math::log_contract(
+                pi.view(),
+                pi_msg.log_probabilities(),
+                Axis(pi.ndim() - 1),
+            );
         }
         // sanity check
         assert!(pi.ndim() == 1);
-        LogProbVector::from_log_probas(pi.into_shape((self.log_probas.shape()[0],)).unwrap())
+        LogProbVector::from_log_probabilities(pi.into_shape((self.log_probas.shape()[0],)).unwrap())
     }
 
     fn compute_and_cache_pi(&mut self) {
@@ -79,22 +83,40 @@ impl BayesNet {
 
     /// Add a new node to the network
     ///
-    /// You need to specify the list of its parents, and an array of log_probabilities representing `p(x | parents)`.
+    /// You need to specify the list of its parents, and an array of probabilities representing `p(x | parents)`.
     /// If the parents are `(p1, ... pk)`, the shape of the array should thus be: `(N, N_p1, ... N_pk)`, where
     /// `N` is the number of possible values for the current variables, and `N_pi` is the number of values of
-    /// parent `pi`. The log-probas array does not need to be normalized, as it will during the construction process.
+    /// parent `pi`.
     ///
-    /// If the node has no parents, the log_propabilities should be single-dimenstionnal and represents a prior.
+    /// If the node has no parents, the propabilities must be single-dimenstionnal and represents a prior.
+    ///
+    /// All values of probabilities should be finite, but the probabilities array does not need to be normalized,
+    /// as it will be during the construction process.
+    pub fn add_node_from_probabilities<D: Dimension + RemoveAxis>(
+        &mut self,
+        parents: &[usize],
+        probabilities: Array<f32, D>,
+    ) -> usize {
+        self.add_node_from_log_probabilities(parents, probabilities.mapv(f32::ln))
+    }
+
+    /// Add a new node to the network from log-probabilities
+    ///
+    /// Same as `add_node_from_probabilities`, but the input is in the form of log-probabilities, for greated precision.
     ///
     /// All values of log-probas should be strictly smaller than `+inf`. `-inf` is valid and represents a
-    /// probability of 0. For example, the log-vector `[0.0, -inf]` will represent a vector of probabilities of
-    /// `[1.0, 0.0]`.
+    /// probability of 0. The probabilities array does not need to be normalized, as it will be during the construction
+    /// process. For example, the log-vector `[0.0, -inf]` will represent a vector of probabilities of `[1.0, 0.0]`.
     ///
-    /// Log-probas are intepreted as computed with the natural logarithm (base e).
-    pub fn add_node<D: Dimension + RemoveAxis>(&mut self, parents: &[usize], mut log_probas: Array<f32, D>) -> usize {
+    /// Log-probabilities are intepreted as computed with the natural logarithm (base e).
+    pub fn add_node_from_log_probabilities<D: Dimension + RemoveAxis>(
+        &mut self,
+        parents: &[usize],
+        mut log_probabilities: Array<f32, D>,
+    ) -> usize {
         let id = self.nodes.len();
         // sanity checks
-        let shape = log_probas.shape();
+        let shape = log_probabilities.shape();
         assert!(
             shape.len() == parents.len() + 1,
             "Dimensions of log_probas array does not match number of parents"
@@ -113,7 +135,7 @@ impl BayesNet {
                 .push((id, LogProbVector::uniform(shape[0])));
         }
 
-        crate::math::normalize_log_probas(log_probas.view_mut());
+        crate::math::normalize_log_probas(log_probabilities.view_mut());
 
         let parents = parents
             .iter()
@@ -128,7 +150,7 @@ impl BayesNet {
         self.nodes.push(Node {
             parents,
             children: Vec::new(),
-            log_probas: log_probas.into_dyn(),
+            log_probas: log_probabilities.into_dyn(),
             evidence: None,
             lambda: None,
             pi: None,
@@ -223,12 +245,13 @@ impl BayesNet {
                     .rev()
                     .filter(|&(_, &(pid, _))| pid != parent_id)
                     .fold(node.log_probas.clone(), |acc, (axid, &(_, ref v))| {
-                        crate::math::log_contract(acc.view(), v.log_probas(), Axis(axid + 1))
+                        crate::math::log_contract(acc.view(), v.log_probabilities(), Axis(axid + 1))
                     });
-                let acc = crate::math::log_contract(acc.view(), lambda.log_probas(), Axis(0));
+                let acc =
+                    crate::math::log_contract(acc.view(), lambda.log_probabilities(), Axis(0));
                 assert!(acc.ndim() == 1);
                 let shape = (acc.len(),);
-                let mut msg = LogProbVector::from_log_probas(acc.into_shape(shape).unwrap());
+                let mut msg = LogProbVector::from_log_probabilities(acc.into_shape(shape).unwrap());
                 msg.renormalize();
                 lambda_msgs.push((id, parent_id, msg));
             }
