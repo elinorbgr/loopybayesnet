@@ -37,30 +37,30 @@ fn main() {
         &[rain, sprinkler],
         ndarray::Array3::from(vec![[[1.0, 0.1], [0.2, 0.01]], [[0.0, 0.9], [0.8, 0.99]]]),
     );
-    /*
-        // We can now do some inferences
-        // First, compute the marginal probabilities of the network without any evidence
-        net.reset_state();
-        net.set_evidence(&[]);
-        println!("===== raw marginal probabilities =====");
-        for _ in 1..10 {
-            // this net converges pretty quickly
-            net.step();
-        }
-        let beliefs = net.beliefs();
-        println!(
-            "    P(Rain)      = {:.2}",
-            beliefs[rain].as_probabilities()[1]
-        );
-        println!(
-            "    P(Sprinkler) = {:.2}",
-            beliefs[sprinkler].as_probabilities()[1]
-        );
-        println!(
-            "    P(Wet)       = {:.2}",
-            beliefs[wet].as_probabilities()[1]
-        );
-    */
+
+    // We can now do some inferences
+    // First, compute the marginal probabilities of the network without any evidence
+    net.reset_state();
+    net.set_evidence(&[]);
+    println!("===== raw marginal probabilities =====");
+    for _ in 1..10 {
+        // this net converges pretty quickly
+        net.step();
+    }
+    let beliefs = net.beliefs();
+    println!(
+        "    P(Rain)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
+
     println!();
     println!("===== marginal probabilities assuming the grass is wet =====");
     // Now, assuming we see the grass we, what can we infer from this ?
@@ -69,66 +69,65 @@ fn main() {
     for i in 1..21 {
         // this net is slower to converge
         net.step();
-        let beliefs = net.beliefs();
-        println!("After iteration {}", i);
-        println!(
-            "    P(Rain | Wet)      = {:.2}",
-            beliefs[rain].as_probabilities()[1]
-        );
-        println!(
-            "    P(Sprinkler | Wet) = {:.2}",
-            beliefs[sprinkler].as_probabilities()[1]
-        );
-        println!(
-            "    P(Wet | Wet)       = {:.2}",
-            beliefs[wet].as_probabilities()[1]
-        );
     }
-    /*
-        println!();
-        println!("===== marginal probabilities assuming the sprinkler is running =====");
-        // Evidence doesn't need to be at the last node
-        net.reset_state();
-        net.set_evidence(&[(sprinkler, 1)]);
-        for _ in 1..10 {
-            // this one is quick to converge too
-            net.step();
-        }
-        let beliefs = net.beliefs();
-        println!(
-            "    P(Rain | Sprinkler)      = {:.2}",
-            beliefs[rain].as_probabilities()[1]
-        );
-        println!(
-            "    P(Sprinkler | Sprinkler) = {:.2}",
-            beliefs[sprinkler].as_probabilities()[1]
-        );
-        println!(
-            "    P(Wet | Sprinkler)       = {:.2}",
-            beliefs[wet].as_probabilities()[1]
-        );
+    let beliefs = net.beliefs();
+    println!("After iteration {}", i);
+    println!(
+        "    P(Rain | Wet)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler | Wet) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet | Wet)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
 
-        println!();
-        println!("===== marginal probabilities assuming it's not rainning =====");
-        // Evidence can even be at the prior !
-        net.reset_state();
-        net.set_evidence(&[(rain, 0)]);
-        for _ in 1..10 {
-            // this one is quick to converge too
-            net.step();
-        }
-        let beliefs = net.beliefs();
-        println!(
-            "    P(Rain | not Rain)      = {:.2}",
-            beliefs[rain].as_probabilities()[1]
-        );
-        println!(
-            "    P(Sprinkler | not Rain) = {:.2}",
-            beliefs[sprinkler].as_probabilities()[1]
-        );
-        println!(
-            "    P(Wet | not Rain)       = {:.2}",
-            beliefs[wet].as_probabilities()[1]
-        );
-    */
+    println!();
+    println!("===== marginal probabilities assuming the sprinkler is running =====");
+    // Evidence doesn't need to be at the last node
+    net.reset_state();
+    net.set_evidence(&[(sprinkler, 1)]);
+    for _ in 1..10 {
+        // this one is quick to converge too
+        net.step();
+    }
+    let beliefs = net.beliefs();
+    println!(
+        "    P(Rain | Sprinkler)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler | Sprinkler) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet | Sprinkler)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
+
+    println!();
+    println!("===== marginal probabilities assuming it's not rainning =====");
+    // Evidence can even be at the prior !
+    net.reset_state();
+    net.set_evidence(&[(rain, 0)]);
+    for _ in 1..10 {
+        // this one is quick to converge too
+        net.step();
+    }
+    let beliefs = net.beliefs();
+    println!(
+        "    P(Rain | not Rain)      = {:.2}",
+        beliefs[rain].as_probabilities()[1]
+    );
+    println!(
+        "    P(Sprinkler | not Rain) = {:.2}",
+        beliefs[sprinkler].as_probabilities()[1]
+    );
+    println!(
+        "    P(Wet | not Rain)       = {:.2}",
+        beliefs[wet].as_probabilities()[1]
+    );
 }
