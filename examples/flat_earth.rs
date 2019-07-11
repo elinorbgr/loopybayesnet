@@ -8,14 +8,14 @@ use ndarray::{Array1, Array2, Array3};
 // try to infer it from the partial evidence I can see for myself.
 //
 // Using Bayesian probabilities, we can model the relationship between these evidences and how they
-// support the various hypothsis. In this context, probabilities have nothing to do with randomness, but
-// they represent how much we believe that a prioposition is plausible. A plausibility very near 0
+// support the various hypotheses. In this context, probabilities have nothing to do with randomness, but
+// they represent how much we believe that a proposition is plausible. A plausibility very near 0
 // means we really don't believe it, and a plausibility near 1 means we really believe it.
 //
 // However, we also need to take into account two things:
 //
-// - We cannot evaluate the plausibility of an hypothesis alsone, but only compared to other hypotheses
-// - Our mind tends to work in logarithmic space, so to compare two hypothese H1 and H2, we should
+// - We cannot evaluate the plausibility of an hypothesis alone, but only compared to other hypotheses
+// - Our mind tends to work in logarithmic space, so to compare two hypotheses H1 and H2, we should
 //   actually look at log(p(H1) / p(H2)), with this small example of possible values
 //   (using base 10 logarithm):
 //
@@ -35,7 +35,7 @@ fn main() {
     let mut net = BayesNet::new();
     let log10 = 10f32.ln();
 
-    // With all that said, lets start our modelisation. First fo all, there is the main hypothesis we want to
+    // With all that said, let's start our modelisation. First fo all, there is the main hypothesis we want to
     // determine: is the Earth round or flat? We'll create a node to represent this. Let's assign the following
     // values: 0 = the Earth is round, 1 = the Earth is flat. Assuming no evidence at all, we have no reason
     // to prefer one or the other, so we put an uniform prior on this node:
