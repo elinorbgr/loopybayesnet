@@ -4,7 +4,7 @@ use ndarray::{Array1, Array2, Array3};
 // Let us here create a Bayesian Network that we will use to weight evidence about whether the Earth
 // is flat or spherical.
 //
-// I'm not an astraunot, and I haven't been to space to see for myself the shape of the Earth. I can only
+// I'm not an astronaut, and I haven't been to space to see for myself the shape of the Earth. I can only
 // try to infer it from the partial evidence I can see for myself.
 //
 // Using Bayesian probabilities, we can model the relationship between these evidences and how they
