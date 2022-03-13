@@ -5,7 +5,7 @@ pub fn assert_all_close(a: &Array1<f32>, b: &[f32], eps: f32) {
     if a.len() != b.len() || a.iter().zip(b.iter()).any(|(&a, &b)| (a - b).abs() > eps) {
         panic!(
             "{:?} != {:?} (+/- {})",
-            a.view().into_slice().unwrap(),
+            a.view().to_slice().unwrap(),
             b,
             eps
         );

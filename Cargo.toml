@@ -9,4 +9,4 @@ license = "MIT"
 description = "Implementation of the Loopy Belief Propagation for Bayesian Networks"
 
 [dependencies]
-ndarray = "0.12"
+ndarray = "0.15"

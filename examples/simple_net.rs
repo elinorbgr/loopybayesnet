@@ -69,21 +69,21 @@ fn main() {
     for i in 1..21 {
         // this net is slower to converge
         net.step();
+        let beliefs = net.beliefs();
+        println!("After iteration {}", i);
+        println!(
+            "    P(Rain | Wet)      = {:.2}",
+            beliefs[rain].as_probabilities()[1]
+        );
+        println!(
+            "    P(Sprinkler | Wet) = {:.2}",
+            beliefs[sprinkler].as_probabilities()[1]
+        );
+        println!(
+            "    P(Wet | Wet)       = {:.2}",
+            beliefs[wet].as_probabilities()[1]
+        );
     }
-    let beliefs = net.beliefs();
-    println!("After iteration {}", i);
-    println!(
-        "    P(Rain | Wet)      = {:.2}",
-        beliefs[rain].as_probabilities()[1]
-    );
-    println!(
-        "    P(Sprinkler | Wet) = {:.2}",
-        beliefs[sprinkler].as_probabilities()[1]
-    );
-    println!(
-        "    P(Wet | Wet)       = {:.2}",
-        beliefs[wet].as_probabilities()[1]
-    );
 
     println!();
     println!("===== marginal probabilities assuming the sprinkler is running =====");
